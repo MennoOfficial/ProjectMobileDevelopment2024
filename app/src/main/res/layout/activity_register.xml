@@ -42,7 +42,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Already have an account? Login here"
-        android:textColor="@color/purple_500"
+        android:textColor="@color/accent"
         android:clickable="true"
         android:focusable="true"/>
 </LinearLayout>
