@@ -6,14 +6,13 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FirebaseFirestore
 import com.example.lendlyapp.databinding.ActivityRegisterBinding
 import com.example.lendlyapp.MainActivity
 
 class RegisterActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRegisterBinding
     private lateinit var auth: FirebaseAuth
-    private lateinit var database: FirebaseDatabase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,7 +20,6 @@ class RegisterActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         auth = FirebaseAuth.getInstance()
-        database = FirebaseDatabase.getInstance()
 
         binding.registerButton.setOnClickListener {
             val firstName = binding.firstNameEditText.text.toString()
@@ -45,16 +43,12 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun registerUser(firstName: String, lastName: String, phone: String, address: String, email: String, password: String) {
-        Log.d("RegisterActivity", "Starting registration for email: $email")
-        
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    Log.d("RegisterActivity", "User created successfully")
                     val user = auth.currentUser
                     
                     if (user != null) {
-                        val userRef = database.reference.child("users").child(user.uid)
                         val userData = hashMapOf(
                             "firstName" to firstName,
                             "lastName" to lastName,
@@ -63,23 +57,22 @@ class RegisterActivity : AppCompatActivity() {
                             "email" to email
                         )
 
-                        val intent = Intent(this, MainActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        
-                        userRef.setValue(userData)
+                        FirebaseFirestore.getInstance()
+                            .collection("users")
+                            .document(user.uid)
+                            .set(userData)
                             .addOnSuccessListener {
                                 Log.d("RegisterActivity", "User data saved successfully")
+                                val intent = Intent(this, MainActivity::class.java)
+                                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                startActivity(intent)
+                                finish()
                             }
                             .addOnFailureListener { e ->
                                 Log.e("RegisterActivity", "Failed to save user data: ${e.message}")
                             }
-                        
-                        Toast.makeText(this, "Registration successful!", Toast.LENGTH_SHORT).show()
-                        startActivity(intent)
-                        finish()
                     }
                 } else {
-                    Log.e("RegisterActivity", "Registration failed: ${task.exception?.message}")
                     Toast.makeText(this, "Registration failed: ${task.exception?.message}",
                         Toast.LENGTH_SHORT).show()
                 }
