@@ -2,6 +2,7 @@ package com.example.lendlyapp
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -16,6 +17,13 @@ class LoginActivity : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Add animations
+        binding.logoImage.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_in))
+        binding.appNameText.startAnimation(AnimationUtils.loadAnimation(this, R.anim.slide_up))
+        binding.welcomeText.startAnimation(AnimationUtils.loadAnimation(this, R.anim.slide_up))
+        binding.subtitleText.startAnimation(AnimationUtils.loadAnimation(this, R.anim.slide_up))
+        binding.formCard.startAnimation(AnimationUtils.loadAnimation(this, R.anim.slide_up))
+        
         auth = FirebaseAuth.getInstance()
 
         binding.loginButton.setOnClickListener {

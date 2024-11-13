@@ -1,24 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Primary colors -->
-    <color name="primary">#2196F3</color>
-    <color name="primary_dark">#1976D2</color>
-    <color name="primary_light">#BBDEFB</color>
+    <!-- Light Theme Colors -->
+    <color name="primary">#4CAF50</color>
+    <color name="primary_dark">#388E3C</color>
+    <color name="primary_light">#C8E6C9</color>
+    <color name="accent">#8BC34A</color>
+    <color name="accent_dark">#689F38</color>
+    <color name="accent_light">#DCEDC8</color>
 
-    <!-- Accent colors -->
-    <color name="accent">#FF4081</color>
-    <color name="accent_dark">#F50057</color>
-    <color name="accent_light">#FF80AB</color>
+    <!-- Dark Theme Colors - Pastel & Muted -->
+    <color name="dark_background">#1E2329</color>
+    <color name="dark_surface">#2A2F35</color>
+    <color name="dark_primary">#81C784</color>
+    <color name="dark_primary_dark">#66BB6A</color>
+    <color name="dark_accent">#A5D6A7</color>
+    <color name="dark_text_primary">#E1E3E5</color>
+    <color name="dark_text_secondary">#B0B5BB</color>
+    <color name="dark_text_hint">#7A8087</color>
 
-    <!-- Text colors -->
+    <!-- Common Colors -->
     <color name="text_primary">#212121</color>
     <color name="text_secondary">#757575</color>
     <color name="text_hint">#BDBDBD</color>
-
-    <!-- Basic colors -->
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
-    <color name="background">#FAFAFA</color>
+    <color name="background">#F5F9F5</color>
     <color name="surface">#FFFFFF</color>
-    <color name="error">#B00020</color>
+    <color name="error">#EF5350</color>
+    <color name="success">#43A047</color>
+    <color name="warning">#FFA000</color>
 </resources>
