@@ -24,12 +24,16 @@ class RegisterActivity : AppCompatActivity() {
         database = FirebaseDatabase.getInstance()
 
         binding.registerButton.setOnClickListener {
-            val name = binding.nameEditText.text.toString()
+            val firstName = binding.firstNameEditText.text.toString()
+            val lastName = binding.lastNameEditText.text.toString()
+            val phone = binding.phoneEditText.text.toString()
+            val address = binding.addressEditText.text.toString()
             val email = binding.emailEditText.text.toString()
             val password = binding.passwordEditText.text.toString()
 
-            if (name.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
-                registerUser(name, email, password)
+            if (firstName.isNotEmpty() && lastName.isNotEmpty() && phone.isNotEmpty() && 
+                address.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
+                registerUser(firstName, lastName, phone, address, email, password)
             } else {
                 Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
             }
@@ -40,29 +44,28 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
-    private fun registerUser(name: String, email: String, password: String) {
+    private fun registerUser(firstName: String, lastName: String, phone: String, address: String, email: String, password: String) {
         Log.d("RegisterActivity", "Starting registration for email: $email")
         
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     Log.d("RegisterActivity", "User created successfully")
-                    // User is automatically signed in after creation
                     val user = auth.currentUser
                     
                     if (user != null) {
                         val userRef = database.reference.child("users").child(user.uid)
                         val userData = hashMapOf(
-                            "name" to name,
+                            "firstName" to firstName,
+                            "lastName" to lastName,
+                            "phone" to phone,
+                            "address" to address,
                             "email" to email
                         )
 
-                        // Navigate to MainActivity immediately after registration
-                        // Don't wait for database operation to complete
                         val intent = Intent(this, MainActivity::class.java)
                         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                         
-                        // Save user data in background
                         userRef.setValue(userData)
                             .addOnSuccessListener {
                                 Log.d("RegisterActivity", "User data saved successfully")
@@ -71,7 +74,6 @@ class RegisterActivity : AppCompatActivity() {
                                 Log.e("RegisterActivity", "Failed to save user data: ${e.message}")
                             }
                         
-                        // Show success message and start MainActivity
                         Toast.makeText(this, "Registration successful!", Toast.LENGTH_SHORT).show()
                         startActivity(intent)
                         finish()
