@@ -12,14 +12,14 @@
         tools:layout="@layout/fragment_home" />
 
     <fragment
-        android:id="@+id/navigation_dashboard"
-        android:name="com.example.lendlyapp.ui.dashboard.DashboardFragment"
-        android:label="@string/title_dashboard"
-        tools:layout="@layout/fragment_dashboard" />
+        android:id="@+id/navigation_you"
+        android:name="com.example.lendlyapp.ui.you.YouFragment"
+        android:label="@string/title_you"
+        tools:layout="@layout/fragment_you" />
 
     <fragment
-        android:id="@+id/navigation_notifications"
-        android:name="com.example.lendlyapp.ui.notifications.NotificationsFragment"
-        android:label="@string/title_notifications"
-        tools:layout="@layout/fragment_notifications" />
+        android:id="@+id/navigation_ongoing"
+        android:name="com.example.lendlyapp.ui.ongoing.OngoingFragment"
+        android:label="@string/title_ongoing"
+        tools:layout="@layout/fragment_ongoing" />
 </navigation>

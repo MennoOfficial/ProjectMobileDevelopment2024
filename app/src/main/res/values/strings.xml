@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">LendlyApp</string>
     <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="title_you">You</string>
+    <string name="title_ongoing">Ongoing</string>
 </resources>
