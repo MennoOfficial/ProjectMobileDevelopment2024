@@ -4,23 +4,21 @@
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/dark_primary</item>
         <item name="colorPrimaryVariant">@color/dark_primary_dark</item>
-        <item name="colorOnPrimary">@color/dark_background</item>
+        <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/dark_accent</item>
-        <item name="colorSecondaryVariant">@color/dark_primary_dark</item>
-        <item name="colorOnSecondary">@color/dark_background</item>
+        <item name="colorSecondaryVariant">@color/dark_accent</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <!-- Background colors -->
+        <item name="android:colorBackground">@color/dark_background</item>
+        <item name="backgroundColor">@color/dark_background</item>
+        <item name="colorOnBackground">@color/dark_text_primary</item>
+        <!-- Surface colors -->
+        <item name="colorSurface">@color/dark_surface</item>
+        <item name="colorOnSurface">@color/dark_text_primary</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">@color/dark_background</item>
         <item name="android:windowLightStatusBar">false</item>
-        <!-- Background colors -->
-        <item name="android:colorBackground">@color/dark_background</item>
-        <item name="colorSurface">@color/dark_surface</item>
-        <!-- Text colors -->
-        <item name="android:textColorPrimary">@color/dark_text_primary</item>
-        <item name="android:textColorSecondary">@color/dark_text_secondary</item>
-        <item name="android:textColorHint">@color/dark_text_hint</item>
-        <!-- Customize your theme here. -->
-        <item name="materialCardViewStyle">@style/DarkCardStyle</item>
     </style>
 
     <style name="DarkCardStyle" parent="Widget.MaterialComponents.CardView">

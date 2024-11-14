@@ -1,5 +1,6 @@
 package com.example.lendlyapp.utils
 
+import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatDelegate
@@ -25,6 +26,7 @@ object ThemeHelper {
         } else {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         }
+        (context as Activity).recreate()
     }
 
     fun applyTheme(context: Context) {
