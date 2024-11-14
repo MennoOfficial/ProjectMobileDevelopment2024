@@ -14,7 +14,7 @@
         <item name="backgroundColor">@color/white</item>
         <item name="colorOnBackground">@color/black</item>
         <!-- Surface colors -->
-        <item name="colorSurface">@color/white</item>
+        <item name="colorSurface">@color/light_surface</item>
         <item name="colorOnSurface">@color/black</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">@color/primary</item>
