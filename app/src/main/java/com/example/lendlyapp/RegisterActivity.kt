@@ -44,13 +44,20 @@ class RegisterActivity : AppCompatActivity() {
             val firstName = binding.firstNameEditText.text.toString()
             val lastName = binding.lastNameEditText.text.toString()
             val phone = binding.phoneEditText.text.toString()
-            val address = binding.addressEditText.text.toString()
+            val street = binding.streetEditText.text.toString()
+            val houseNumber = binding.houseNumberEditText.text.toString()
+            val city = binding.cityEditText.text.toString()
+            val postalCode = binding.postalCodeEditText.text.toString()
+            val country = binding.countryEditText.text.toString()
             val email = binding.emailEditText.text.toString()
             val password = binding.passwordEditText.text.toString()
 
             if (firstName.isNotEmpty() && lastName.isNotEmpty() && phone.isNotEmpty() && 
-                address.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
-                registerUser(firstName, lastName, phone, address, email, password)
+                street.isNotEmpty() && houseNumber.isNotEmpty() && city.isNotEmpty() &&
+                postalCode.isNotEmpty() && country.isNotEmpty() && 
+                email.isNotEmpty() && password.isNotEmpty()) {
+                registerUser(firstName, lastName, phone, street, houseNumber, 
+                           city, postalCode, country, email, password)
             } else {
                 Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
             }
@@ -87,7 +94,18 @@ class RegisterActivity : AppCompatActivity() {
         )
     }
 
-    private fun registerUser(firstName: String, lastName: String, phone: String, address: String, email: String, password: String) {
+    private fun registerUser(
+        firstName: String, 
+        lastName: String, 
+        phone: String, 
+        street: String,
+        houseNumber: String,
+        city: String,
+        postalCode: String,
+        country: String,
+        email: String, 
+        password: String
+    ) {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
@@ -98,7 +116,11 @@ class RegisterActivity : AppCompatActivity() {
                             "firstName" to firstName,
                             "lastName" to lastName,
                             "phone" to phone,
-                            "address" to address,
+                            "street" to street,
+                            "houseNumber" to houseNumber,
+                            "city" to city,
+                            "postalCode" to postalCode,
+                            "country" to country,
                             "email" to email
                         )
 

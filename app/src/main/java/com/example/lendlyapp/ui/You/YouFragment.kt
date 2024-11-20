@@ -11,6 +11,9 @@ import com.example.lendlyapp.AddProductActivity
 import com.example.lendlyapp.databinding.FragmentYouBinding
 import com.example.lendlyapp.LoginActivity
 import com.google.firebase.auth.FirebaseAuth
+import androidx.recyclerview.widget.LinearLayoutManager
+import android.widget.Toast
+import com.example.lendlyapp.adapters.ProductAdapter
 
 class YouFragment : Fragment() {
 
@@ -26,13 +29,39 @@ class YouFragment : Fragment() {
         viewModel = ViewModelProvider(this).get(YouViewModel::class.java)
         _binding = FragmentYouBinding.inflate(inflater, container, false)
 
+        setupUserDataObserver()
+        setupProductsRecyclerView()
+        setupButtons()
+
+        viewModel.loadUserData()
+        return binding.root
+    }
+
+    private fun setupUserDataObserver() {
         viewModel.userData.observe(viewLifecycleOwner) { userData ->
             binding.nameTextView.text = "${userData.firstName} ${userData.lastName}"
             binding.emailTextView.text = userData.email
             binding.phoneTextView.text = userData.phone
-            binding.addressTextView.text = userData.address
+            binding.addressTextView.text = "${userData.street} ${userData.houseNumber}, ${userData.postalCode} ${userData.city}, ${userData.country}"
         }
+    }
 
+    private fun setupProductsRecyclerView() {
+        val adapter = ProductAdapter(emptyList()) { product ->
+            // Handle product click - implement edit functionality
+            Toast.makeText(context, "Edit ${product.name}", Toast.LENGTH_SHORT).show()
+        }
+        
+        binding.productsRecyclerView.layoutManager = 
+            LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        binding.productsRecyclerView.adapter = adapter
+
+        viewModel.products.observe(viewLifecycleOwner) { products ->
+            adapter.updateProducts(products)
+        }
+    }
+
+    private fun setupButtons() {
         binding.addProductButton.setOnClickListener {
             startActivity(Intent(requireContext(), AddProductActivity::class.java))
         }
@@ -42,9 +71,6 @@ class YouFragment : Fragment() {
             startActivity(Intent(requireContext(), LoginActivity::class.java))
             requireActivity().finish()
         }
-
-        viewModel.loadUserData()
-        return binding.root
     }
 
     override fun onDestroyView() {
