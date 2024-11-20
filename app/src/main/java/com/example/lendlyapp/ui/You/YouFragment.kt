@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.example.lendlyapp.AddProductActivity
 import com.example.lendlyapp.databinding.FragmentYouBinding
 import com.example.lendlyapp.LoginActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -30,6 +31,10 @@ class YouFragment : Fragment() {
             binding.emailTextView.text = userData.email
             binding.phoneTextView.text = userData.phone
             binding.addressTextView.text = userData.address
+        }
+
+        binding.addProductButton.setOnClickListener {
+            startActivity(Intent(requireContext(), AddProductActivity::class.java))
         }
 
         binding.logoutButton.setOnClickListener {
