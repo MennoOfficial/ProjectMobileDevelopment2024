@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.lendlyapp.databinding.ActivityAddProductBinding
+import com.example.lendlyapp.utils.GeocodingUtil
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.*
@@ -12,6 +13,8 @@ class AddProductActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAddProductBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
+    private var userStreet: String = ""
+    private var userCity: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,6 +23,9 @@ class AddProductActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
         firestore = FirebaseFirestore.getInstance()
+
+        // Fetch user data when activity starts
+        fetchUserData()
 
         binding.addProductButton.setOnClickListener {
             val name = binding.productNameEditText.text.toString()
@@ -39,6 +45,23 @@ class AddProductActivity : AppCompatActivity() {
         }
     }
 
+    private fun fetchUserData() {
+        val userId = auth.currentUser?.uid
+        if (userId != null) {
+            firestore.collection("users").document(userId)
+                .get()
+                .addOnSuccessListener { document ->
+                    if (document != null && document.exists()) {
+                        userStreet = document.getString("street") ?: ""
+                        userCity = document.getString("city") ?: ""
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(this, "Error fetching user data: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+        }
+    }
+
     private fun addProduct(name: String, price: Double, details: String) {
         val userId = auth.currentUser?.uid
         if (userId == null) {
@@ -46,12 +69,20 @@ class AddProductActivity : AppCompatActivity() {
             return
         }
 
+        if (userStreet.isEmpty() || userCity.isEmpty()) {
+            Toast.makeText(this, "User address not available", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val geoPoint = GeocodingUtil.getGeoPointFromAddress(this, userStreet, userCity)
+
         val product = hashMapOf(
             "name" to name,
             "price" to price,
             "details" to details,
             "userId" to userId,
-            "createdAt" to Date()
+            "createdAt" to Date(),
+            "location" to geoPoint
         )
 
         firestore.collection("products")
