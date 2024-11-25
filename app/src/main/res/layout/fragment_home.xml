@@ -19,10 +19,17 @@
             app:cardElevation="4dp"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
-            <org.osmdroid.views.MapView
-                android:id="@+id/mapView"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:descendantFocusability="blocksDescendants">
+
+                <org.osmdroid.views.MapView
+                    android:id="@+id/mapView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+            </FrameLayout>
 
         </com.google.android.material.card.MaterialCardView>
     </com.google.android.material.appbar.AppBarLayout>

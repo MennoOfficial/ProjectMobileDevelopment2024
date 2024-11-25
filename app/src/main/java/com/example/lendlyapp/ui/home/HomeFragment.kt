@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.lendlyapp.adapters.ProductAdapter
 import com.example.lendlyapp.databinding.FragmentHomeBinding
+import com.example.lendlyapp.utils.CustomMarker
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
@@ -55,6 +56,12 @@ class HomeFragment : Fragment() {
         map.controller.setZoom(6.0)
         val startPoint = GeoPoint(50.8503, 4.3517) // Belgium
         map.controller.setCenter(startPoint)
+        
+        // Prevent map from intercepting parent scroll
+        map.setOnTouchListener { v, event ->
+            v.parent.requestDisallowInterceptTouchEvent(true)
+            false
+        }
     }
 
     private fun setupRecyclerView() {
@@ -63,6 +70,11 @@ class HomeFragment : Fragment() {
                 // Zoom to product location
                 map.controller.animateTo(GeoPoint(location.latitude, location.longitude))
                 map.controller.setZoom(15.0)
+                
+                // Find and open the marker for this product
+                map.overlays.filterIsInstance<CustomMarker>()
+                    .firstOrNull { it.product == product }
+                    ?.showInfoWindow()
             }
         }
         
@@ -79,10 +91,13 @@ class HomeFragment : Fragment() {
             map.overlays.clear()
             products.forEach { product ->
                 product.location?.let { location ->
-                    val marker = Marker(map).apply {
+                    val marker = CustomMarker(map, requireContext(), product).apply {
                         position = GeoPoint(location.latitude, location.longitude)
-                        title = "${product.name} - €${product.price}"
-                        snippet = product.details
+                        setOnMarkerClickListener { marker, mapView ->
+                            marker.showInfoWindow()
+                            mapView.controller.animateTo(marker.position)
+                            true
+                        }
                     }
                     map.overlays.add(marker)
                 }
