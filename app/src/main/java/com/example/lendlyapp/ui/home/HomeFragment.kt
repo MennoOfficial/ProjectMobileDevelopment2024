@@ -6,12 +6,16 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.lendlyapp.adapters.ProductAdapter
 import com.example.lendlyapp.databinding.FragmentHomeBinding
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
+import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
 
 class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
@@ -25,34 +29,66 @@ class HomeFragment : Fragment() {
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         
-        // Initialize the map
+        setupMap()
+        setupRecyclerView()
+        
+        return binding.root
+    }
+
+    private fun setupMap() {
         Configuration.getInstance().userAgentValue = requireActivity().packageName
         map = binding.mapView
         map.setTileSource(TileSourceFactory.MAPNIK)
-        map.controller.setZoom(15.0)
         
-        // Set default position (e.g., Brussels)
-        val startPoint = GeoPoint(50.8503, 4.3517)
+        // Enable multitouch
+        map.setMultiTouchControls(true)
+        
+        // Hide default zoom buttons
+        map.zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
+        
+        // Enable rotation gestures
+        val rotationGestureOverlay = RotationGestureOverlay(map)
+        rotationGestureOverlay.isEnabled = true
+        map.overlays.add(rotationGestureOverlay)
+        
+        // Set initial position and zoom
+        map.controller.setZoom(6.0)
+        val startPoint = GeoPoint(50.8503, 4.3517) // Belgium
         map.controller.setCenter(startPoint)
+    }
 
-        // Observe products from ViewModel
+    private fun setupRecyclerView() {
+        val adapter = ProductAdapter(emptyList()) { product ->
+            product.location?.let { location ->
+                // Zoom to product location
+                map.controller.animateTo(GeoPoint(location.latitude, location.longitude))
+                map.controller.setZoom(15.0)
+            }
+        }
+        
+        binding.productsRecyclerView.layoutManager = LinearLayoutManager(context)
+        binding.productsRecyclerView.adapter = adapter
+
         val viewModel = ViewModelProvider(this)[HomeViewModel::class.java]
         viewModel.loadProducts()
         
         viewModel.products.observe(viewLifecycleOwner) { products ->
+            adapter.updateProducts(products)
+            
+            // Update map markers
             map.overlays.clear()
             products.forEach { product ->
                 product.location?.let { location ->
-                    val marker = Marker(map)
-                    marker.position = GeoPoint(location.latitude, location.longitude)
-                    marker.title = "${product.name} - €${product.price}"
+                    val marker = Marker(map).apply {
+                        position = GeoPoint(location.latitude, location.longitude)
+                        title = "${product.name} - €${product.price}"
+                        snippet = product.details
+                    }
                     map.overlays.add(marker)
                 }
             }
             map.invalidate()
         }
-
-        return binding.root
     }
 
     override fun onResume() {
