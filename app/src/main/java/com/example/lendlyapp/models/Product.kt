@@ -10,5 +10,6 @@ data class Product(
     val details: String = "",
     val userId: String = "",
     val createdAt: Date = Date(),
-    val location: GeoPoint? = null
+    val location: GeoPoint? = null,
+    val tag: String = ""
 )

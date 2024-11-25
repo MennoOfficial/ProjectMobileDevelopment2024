@@ -1,6 +1,8 @@
 package com.example.lendlyapp
 
+import android.R
 import android.os.Bundle
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.lendlyapp.databinding.ActivityAddProductBinding
@@ -8,6 +10,7 @@ import com.example.lendlyapp.utils.GeocodingUtil
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.*
+import com.google.firebase.firestore.GeoPoint
 
 class AddProductActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAddProductBinding
@@ -26,6 +29,9 @@ class AddProductActivity : AppCompatActivity() {
 
         // Fetch user data when activity starts
         fetchUserData()
+
+        // Setup the tag spinner
+        setupTagSpinner()
 
         binding.addProductButton.setOnClickListener {
             val name = binding.productNameEditText.text.toString()
@@ -82,7 +88,8 @@ class AddProductActivity : AppCompatActivity() {
             "details" to details,
             "userId" to userId,
             "createdAt" to Date(),
-            "location" to geoPoint
+            "location" to geoPoint,
+            "tag" to binding.tagSpinner.selectedItem.toString()
         )
 
         firestore.collection("products")
@@ -95,4 +102,10 @@ class AddProductActivity : AppCompatActivity() {
                 Toast.makeText(this, "Error adding product: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
+    private fun setupTagSpinner() {
+    val tags = listOf("Electronics", "Garden Tools", "Sports Equipment", "Home Appliances", "Books", "Music Instruments", "Camping Gear", "Party Supplies", "Tools", "Games")
+    val adapter = ArrayAdapter(this, R.layout.simple_spinner_item, tags)
+    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+    binding.tagSpinner.adapter = adapter
+}
 } 
