@@ -47,10 +47,13 @@ class YouFragment : Fragment() {
     }
 
     private fun setupProductsRecyclerView() {
-        val adapter = ProductAdapter(emptyList()) { product ->
-            // Handle product click - implement edit functionality
-            Toast.makeText(context, "Edit ${product.name}", Toast.LENGTH_SHORT).show()
-        }
+        val adapter = ProductAdapter(
+            products = emptyList(),
+            onDetailsClick = { product ->
+                // Handle edit functionality
+                Toast.makeText(context, "Edit ${product.name}", Toast.LENGTH_SHORT).show()
+            }
+        )
         
         binding.productsRecyclerView.layoutManager = 
             LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)

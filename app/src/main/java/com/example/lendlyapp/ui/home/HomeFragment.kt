@@ -6,6 +6,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -73,18 +74,23 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        adapter = ProductAdapter(emptyList()) { product ->
-            product.location?.let { location ->
-                // Zoom to product location
-                map.controller.animateTo(GeoPoint(location.latitude, location.longitude))
-                map.controller.setZoom(15.0)
-                
-                // Find and open the marker for this product
-                map.overlays.filterIsInstance<CustomMarker>()
-                    .firstOrNull { it.product == product }
-                    ?.showInfoWindow()
+        adapter = ProductAdapter(
+            emptyList(),
+            onLocationClick = { product ->
+                product.location?.let { location ->
+                    map.controller.animateTo(GeoPoint(location.latitude, location.longitude))
+                    map.controller.setZoom(15.0)
+                    
+                    map.overlays.filterIsInstance<CustomMarker>()
+                        .firstOrNull { it.product == product }
+                        ?.showInfoWindow()
+                }
+            },
+            onDetailsClick = { product ->
+                // TODO: Implement navigation to product details
+                Toast.makeText(context, "View details for ${product.name}", Toast.LENGTH_SHORT).show()
             }
-        }
+        )
         
         binding.productsRecyclerView.layoutManager = LinearLayoutManager(context)
         binding.productsRecyclerView.adapter = adapter

@@ -30,4 +30,6 @@
     <color name="error">#EF5350</color>
     <color name="success">#43A047</color>
     <color name="warning">#FFA000</color>
+    <color name="colorPrimary">@color/green_500</color>
+    <color name="green_500">#4CAF50</color>
 </resources>
