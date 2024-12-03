@@ -14,6 +14,7 @@ import com.google.firebase.auth.FirebaseAuth
 import androidx.recyclerview.widget.LinearLayoutManager
 import android.widget.Toast
 import com.example.lendlyapp.adapters.ProductAdapter
+import com.example.lendlyapp.EditProfileActivity
 
 class YouFragment : Fragment() {
 
@@ -32,6 +33,7 @@ class YouFragment : Fragment() {
         setupUserDataObserver()
         setupProductsRecyclerView()
         setupButtons()
+        setupEditProfileButton()
 
         viewModel.loadUserData()
         return binding.root
@@ -73,6 +75,12 @@ class YouFragment : Fragment() {
             FirebaseAuth.getInstance().signOut()
             startActivity(Intent(requireContext(), LoginActivity::class.java))
             requireActivity().finish()
+        }
+    }
+
+    private fun setupEditProfileButton() {
+        binding.editProfileButton.setOnClickListener {
+            startActivity(Intent(requireContext(), EditProfileActivity::class.java))
         }
     }
 
