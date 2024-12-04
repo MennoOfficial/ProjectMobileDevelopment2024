@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.lendlyapp.models.Product
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.GeoPoint
 
 class HomeViewModel : ViewModel() {
     private val _products = MutableLiveData<List<Product>>()
@@ -13,9 +14,15 @@ class HomeViewModel : ViewModel() {
     private val _filteredProducts = MutableLiveData<List<Product>>()
     val filteredProducts: LiveData<List<Product>> = _filteredProducts
     
-    private var currentSearchQuery: String = ""
-    private var currentTag: String? = null
+    private val _currentRadius = MutableLiveData<Float>(5f)
+    val currentRadius: LiveData<Float> = _currentRadius
     
+    private var allProducts = listOf<Product>()
+    private var currentSearchQuery = ""
+    private var currentTag: String? = null
+    private var currentCenter: GeoPoint? = null
+    private var userLocation: GeoPoint? = null
+
     val tags = listOf(
         "Electronics",
         "Garden Tools",
@@ -40,6 +47,7 @@ class HomeViewModel : ViewModel() {
                         doc.toObject(Product::class.java)?.copy(id = doc.id)
                     }
                     _products.value = productList
+                    allProducts = productList
                     filterProducts()
                 }
             }
@@ -55,15 +63,62 @@ class HomeViewModel : ViewModel() {
         filterProducts()
     }
 
-    private fun filterProducts() {
-        val allProducts = _products.value ?: return
-        
-        _filteredProducts.value = allProducts.filter { product ->
-            val matchesSearch = product.name.contains(currentSearchQuery, ignoreCase = true) ||
-                              product.details.contains(currentSearchQuery, ignoreCase = true)
-            val matchesTag = currentTag == null || product.tag == currentTag
-            
-            matchesSearch && matchesTag
+    fun setRadius(radius: Float) {
+        _currentRadius.value = radius
+        filterProducts()
+    }
+
+    fun setMapCenter(center: org.osmdroid.util.GeoPoint) {
+        currentCenter = GeoPoint(center.latitude, center.longitude)
+        if (userLocation == null) {
+            userLocation = GeoPoint(center.latitude, center.longitude)  // Set initial user location
         }
+        filterProducts()
+    }
+
+    private fun filterProducts() {
+        var filtered = allProducts
+
+        // Apply search filter
+        if (currentSearchQuery.isNotEmpty()) {
+            filtered = filtered.filter { it.name.contains(currentSearchQuery, ignoreCase = true) }
+        }
+
+        // Apply tag filter
+        currentTag?.let { tag ->
+            filtered = filtered.filter { it.tag == tag }
+        }
+
+        // Apply radius filter from user's location
+        userLocation?.let { center ->
+            val radiusKm = _currentRadius.value ?: 5f
+            filtered = filtered.filter { product ->
+                product.location?.let { location ->
+                    val distanceKm = calculateDistance(
+                        center.latitude, center.longitude,
+                        location.latitude, location.longitude
+                    )
+                    println("Product distance: $distanceKm km, Radius: $radiusKm km")
+                    distanceKm <= radiusKm
+                } ?: false
+            }
+        }
+
+        _filteredProducts.value = filtered
+    }
+
+    private fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+        val earthRadius = 6371.0 // Earth's radius in kilometers
+
+        val dLat = Math.toRadians(lat2 - lat1)
+        val dLon = Math.toRadians(lon2 - lon1)
+        
+        val a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2)
+        
+        val c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+        
+        return earthRadius * c  // Return distance in kilometers
     }
 }
