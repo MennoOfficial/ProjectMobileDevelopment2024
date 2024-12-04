@@ -32,4 +32,9 @@
     <color name="warning">#FFA000</color>
     <color name="colorPrimary">@color/green_500</color>
     <color name="green_500">#4CAF50</color>
+
+    <!-- Add these colors -->
+    <color name="status_available">#4CAF50</color>
+    <color name="status_rented">#FFC107</color>
+    <color name="status_unavailable">#F44336</color>
 </resources>

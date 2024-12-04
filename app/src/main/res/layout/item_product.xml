@@ -71,4 +71,17 @@
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/statusPill"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="4dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginStart="8dp"
+        android:textSize="12sp"
+        android:textColor="@color/white"
+        android:background="@drawable/bg_status_pill"/>
 </com.google.android.material.card.MaterialCardView> 

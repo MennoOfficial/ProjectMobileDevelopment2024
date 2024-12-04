@@ -12,5 +12,6 @@ data class Product(
     val createdAt: Date = Date(),
     val location: GeoPoint? = null,
     val imageUrl: String = "",
-    val tag: String = ""
+    val tag: String = "",
+    val status: String = "AVAILABLE"
 )

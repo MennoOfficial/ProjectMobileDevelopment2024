@@ -188,7 +188,8 @@ class AddProductActivity : AppCompatActivity() {
             "createdAt" to Date(),
             "location" to geoPoint,
             "imageUrl" to imageUrl,
-            "tag" to binding.tagSpinner.selectedItem.toString()
+            "tag" to binding.tagSpinner.selectedItem.toString(),
+            "status" to ProductStatus.AVAILABLE.name
         )
 
         Log.d("AddProductActivity", "Adding product: $product")

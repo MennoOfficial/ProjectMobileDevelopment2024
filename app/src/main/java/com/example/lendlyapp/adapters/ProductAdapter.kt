@@ -4,6 +4,7 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.lendlyapp.R
@@ -23,18 +24,33 @@ class ProductAdapter(
         fun bind(product: Product) {
             binding.apply {
                 productName.text = product.name
-                productPrice.text = "€${String.format("%.2f", product.price)}"
-                tagChip.text = product.tag
-
-                Glide.with(productImage.context)
+                productPrice.text = String.format("%.2f€/day", product.price)
+                
+                Glide.with(itemView.context)
                     .load(product.imageUrl)
                     .placeholder(R.drawable.placeholder_image)
                     .into(productImage)
 
+                try {
+                    val status = ProductStatus.valueOf(product.status)
+                    binding.statusPill.apply {
+                        text = status.displayName
+                        setBackgroundResource(R.drawable.bg_status_pill)
+                        setTextColor(ContextCompat.getColor(itemView.context, R.color.white))
+                    }
+                } catch (e: IllegalArgumentException) {
+                    val defaultStatus = ProductStatus.AVAILABLE
+                    binding.statusPill.apply {
+                        text = defaultStatus.displayName
+                        setBackgroundResource(R.drawable.bg_status_pill)
+                        setTextColor(ContextCompat.getColor(itemView.context, R.color.white))
+                    }
+                }
+
                 viewDetailsButton.setOnClickListener { 
-                    val intent = Intent(it.context, ProductDetailActivity::class.java)
+                    val intent = Intent(itemView.context, ProductDetailActivity::class.java)
                     intent.putExtra("product_id", product.id)
-                    it.context.startActivity(intent)
+                    itemView.context.startActivity(intent)
                 }
                 
                 if (onLocationClick != null) {
