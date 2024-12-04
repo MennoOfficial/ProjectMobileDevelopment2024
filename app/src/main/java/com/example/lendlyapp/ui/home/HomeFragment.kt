@@ -84,11 +84,6 @@ class HomeFragment : Fragment() {
         rotationGestureOverlay.isEnabled = true
         map.overlays.add(rotationGestureOverlay)
         
-        // Set initial position and zoom
-        map.controller.setZoom(6.0)
-        val startPoint = GeoPoint(50.8503, 4.3517) // Belgium
-        map.controller.setCenter(startPoint)
-        
         // Prevent map from intercepting parent scroll
         map.setOnTouchListener { v, event ->
             v.parent.requestDisallowInterceptTouchEvent(true)
@@ -107,10 +102,7 @@ class HomeFragment : Fragment() {
         // Update center when map is moved
         map.setMapListener(object : MapListener {
             override fun onScroll(event: ScrollEvent?): Boolean {
-                val center = GeoPoint(map.mapCenter.latitude, map.mapCenter.longitude)
-                viewModel.setMapCenter(center)
-                updateRadiusOverlay()
-                return true
+                return true  // Don't update center on scroll
             }
             override fun onZoom(event: ZoomEvent?): Boolean {
                 updateRadiusOverlay()
@@ -209,24 +201,25 @@ class HomeFragment : Fragment() {
 
     private fun updateRadiusOverlay() {
         val radiusKm = viewModel.currentRadius.value ?: 5f
-        val center = map.mapCenter
-        
-        // Calculate appropriate zoom level based on radius
-        val zoomLevel = when {
-            radiusKm <= 1 -> 15.0
-            radiusKm <= 5 -> 13.0
-            radiusKm <= 10 -> 12.0
-            radiusKm <= 20 -> 11.0
-            radiusKm <= 30 -> 10.0
-            else -> 9.0
+        viewModel.userLocation.value?.let { userLocation ->
+            val osmPoint = org.osmdroid.util.GeoPoint(userLocation.latitude, userLocation.longitude)
+            
+            val zoomLevel = when {
+                radiusKm <= 1 -> 15.0
+                radiusKm <= 5 -> 13.0
+                radiusKm <= 10 -> 12.0
+                radiusKm <= 20 -> 11.0
+                radiusKm <= 30 -> 10.0
+                else -> 9.0
+            }
+            
+            map.controller.setZoom(zoomLevel)
+            radiusOverlay.apply {
+                setPoints(osmPoint)
+                setRadius(radiusKm)
+            }
+            map.invalidate()
         }
-        map.controller.setZoom(zoomLevel)
-        
-        radiusOverlay.apply {
-            setPoints(center)
-            setRadius(radiusKm)
-        }
-        map.invalidate()
     }
 
     private fun checkLocationPermission() {
@@ -250,9 +243,14 @@ class HomeFragment : Fragment() {
         try {
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                 location?.let {
-                    val userLocation = GeoPoint(it.latitude, it.longitude)
-                    map.controller.animateTo(userLocation)
-                    viewModel.setMapCenter(userLocation)
+                    // Create Firebase GeoPoint for ViewModel
+                    val userLocation = com.google.firebase.firestore.GeoPoint(it.latitude, it.longitude)
+                    viewModel.setUserLocation(userLocation)
+                    
+                    // Create OSMDroid GeoPoint for map
+                    val mapLocation = org.osmdroid.util.GeoPoint(it.latitude, it.longitude)
+                    map.controller.animateTo(mapLocation)
+                    map.controller.setZoom(15.0)
                     updateRadiusOverlay()
                 }
             }

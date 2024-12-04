@@ -21,7 +21,8 @@ class HomeViewModel : ViewModel() {
     private var currentSearchQuery = ""
     private var currentTag: String? = null
     private var currentCenter: GeoPoint? = null
-    private var userLocation: GeoPoint? = null
+    private val _userLocation = MutableLiveData<GeoPoint>()
+    val userLocation: LiveData<GeoPoint> = _userLocation
 
     val tags = listOf(
         "Electronics",
@@ -68,11 +69,12 @@ class HomeViewModel : ViewModel() {
         filterProducts()
     }
 
-    fun setMapCenter(center: org.osmdroid.util.GeoPoint) {
-        currentCenter = GeoPoint(center.latitude, center.longitude)
-        if (userLocation == null) {
-            userLocation = GeoPoint(center.latitude, center.longitude)  // Set initial user location
-        }
+    fun setMapCenter(center: GeoPoint) {
+        filterProducts()
+    }
+
+    fun setUserLocation(location: com.google.firebase.firestore.GeoPoint) {
+        _userLocation.value = location
         filterProducts()
     }
 
@@ -90,7 +92,7 @@ class HomeViewModel : ViewModel() {
         }
 
         // Apply radius filter from user's location
-        userLocation?.let { center ->
+        _userLocation.value?.let { center ->
             val radiusKm = _currentRadius.value ?: 5f
             filtered = filtered.filter { product ->
                 product.location?.let { location ->
