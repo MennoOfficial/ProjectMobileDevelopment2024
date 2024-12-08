@@ -6,12 +6,15 @@ import java.util.Date
 data class Product(
     val id: String = "",
     val name: String = "",
-    val price: Double = 0.0,
     val details: String = "",
-    val userId: String = "",
-    val createdAt: Date = Date(),
-    val location: GeoPoint? = null,
+    val price: Double = 0.0,
     val imageUrl: String = "",
+    val userId: String = "",
     val tag: String = "",
-    val status: String = "AVAILABLE"
-)
+    val location: GeoPoint? = null,
+    val createdAt: Date = Date(),
+    val status: String = "available",
+    val rentalPeriods: List<RentalPeriod> = listOf()
+) {
+    constructor() : this("", "", "", 0.0, "", "", "", null, Date())
+}

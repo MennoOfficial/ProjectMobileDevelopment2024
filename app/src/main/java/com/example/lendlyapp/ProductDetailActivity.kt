@@ -3,28 +3,20 @@ package com.example.lendlyapp
 import android.graphics.Color
 import android.os.Bundle
 import android.view.MenuItem
-import android.view.View
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.example.lendlyapp.databinding.ActivityProductDetailBinding
 import com.example.lendlyapp.models.Product
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.GeoPoint
 import java.text.SimpleDateFormat
-import java.time.LocalDate
-import java.time.YearMonth
-import java.time.temporal.WeekFields
 import java.util.Locale
-import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
-import com.prolificinteractive.materialcalendarview.MaterialCalendarView
-import com.prolificinteractive.materialcalendarview.CalendarDay
-import com.prolificinteractive.materialcalendarview.OnRangeSelectedListener
-import com.prolificinteractive.materialcalendarview.OnDateSelectedListener
 import java.util.Calendar
-import android.widget.CalendarView
+import androidx.core.content.ContextCompat
+import com.google.firebase.firestore.FirebaseFirestoreException
+import com.example.lendlyapp.models.RentalPeriod
+import android.content.res.ColorStateList
 
 class ProductDetailActivity : AppCompatActivity() {
     private lateinit var binding: ActivityProductDetailBinding
@@ -52,6 +44,7 @@ class ProductDetailActivity : AppCompatActivity() {
         loadProduct(productId)
         setupDatePickers()
         binding.rentButton.isEnabled = false
+        setupRentButton()
     }
 
     private fun loadProduct(productId: String) {
@@ -87,22 +80,97 @@ class ProductDetailActivity : AppCompatActivity() {
                 .placeholder(R.drawable.placeholder_image)
                 .into(productImage)
 
-            priceText.text = "€${String.format("%.2f", product.price)} first day"
-            extraDayPrice.text = "€${String.format("%.2f", product.price - 0.50)} per extra day"
+            priceText.apply {
+                text = "€${String.format("%.2f", product.price)} first day"
+                setTextColor(ContextCompat.getColor(context, R.color.text_primary))
+            }
+            extraDayPrice.apply {
+                text = "€${String.format("%.2f", product.price - 0.50)} per extra day"
+                setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
+            }
             
-            tagChip.text = product.tag
+            tagChip.apply {
+                text = when (product.status) {
+                    "available" -> "Available"
+                    "rented" -> "Currently Rented"
+                    else -> "Unavailable"
+                }
+                chipBackgroundColor = ColorStateList.valueOf(
+                    ContextCompat.getColor(context, when (product.status) {
+                        "available" -> R.color.status_available
+                        "rented" -> R.color.status_rented
+                        else -> R.color.status_unavailable
+                    })
+                )
+                setTextColor(Color.WHITE)
+            }
             descriptionText.text = product.details
 
             // Format the date
             val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
             datePostedText.text = "Posted on ${dateFormat.format(product.createdAt)}"
+
+            // Disable rent button if product is not available
+            rentButton.isEnabled = product.status == "available"
         }
     }
 
     private fun setupRentButton() {
         binding.rentButton.setOnClickListener {
-            // TODO: Implement rent functionality
-            Toast.makeText(this, "Rent functionality coming soon!", Toast.LENGTH_SHORT).show()
+            val currentUser = FirebaseAuth.getInstance().currentUser
+            if (currentUser == null) {
+                Toast.makeText(this, "Please login to rent items", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if (currentUser.uid == product.userId) {
+                Toast.makeText(this, "You cannot rent your own product", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // Calculate total price
+            val diffInMillis = selectedEndDate.timeInMillis - selectedStartDate.timeInMillis
+            val days = (diffInMillis / (1000 * 60 * 60 * 24)).toInt() + 1
+            val totalPrice = product.price + (days - 1) * (product.price - 0.50)
+
+            // Create rental period
+            val rentalPeriod = RentalPeriod(
+                startDate = selectedStartDate.timeInMillis,
+                endDate = selectedEndDate.timeInMillis,
+                renterId = currentUser.uid,
+                totalPrice = totalPrice
+            )
+
+            // Update product in Firestore
+            val db = FirebaseFirestore.getInstance()
+            db.runTransaction { transaction ->
+                val productRef = db.collection("products").document(product.id)
+                val productSnapshot = transaction.get(productRef)
+                
+                // Get current rental periods
+                val currentProduct = productSnapshot.toObject(Product::class.java)
+                val newRentalPeriods = currentProduct?.rentalPeriods?.toMutableList() ?: mutableListOf()
+                newRentalPeriods.add(rentalPeriod)
+
+                // Check if the product is currently available
+                if (currentProduct?.status != "available") {
+                    throw FirebaseFirestoreException(
+                        "Product is no longer available",
+                        FirebaseFirestoreException.Code.ABORTED
+                    )
+                }
+
+                // Update the product
+                transaction.update(productRef, mapOf(
+                    "status" to "rented",
+                    "rentalPeriods" to newRentalPeriods
+                ))
+            }.addOnSuccessListener {
+                Toast.makeText(this, "Product rented successfully!", Toast.LENGTH_SHORT).show()
+                finish()
+            }.addOnFailureListener { e ->
+                Toast.makeText(this, "Failed to rent: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -146,14 +214,27 @@ class ProductDetailActivity : AppCompatActivity() {
 
     private fun updateSelectedDatesAndPrice() {
         if (selectedEndDate.after(selectedStartDate)) {
-            val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
-            binding.selectedDatesText.text = "Selected: ${dateFormat.format(selectedStartDate.time)} - ${dateFormat.format(selectedEndDate.time)}"
+            val dateFormat = SimpleDateFormat("EEE, MMM dd, yyyy", Locale.getDefault())
+            binding.selectedDatesText.text = "Selected Period:\n${dateFormat.format(selectedStartDate.time)} - ${dateFormat.format(selectedEndDate.time)}"
+            binding.selectedDatesText.setTextColor(ContextCompat.getColor(this, R.color.text_primary))
             
             val diffInMillis = selectedEndDate.timeInMillis - selectedStartDate.timeInMillis
             val days = (diffInMillis / (1000 * 60 * 60 * 24)).toInt() + 1
             val totalPrice = product.price + (days - 1) * (product.price - 0.50)
-            binding.rentButton.text = "RENT - €${String.format("%.2f", totalPrice)}"
-            binding.rentButton.isEnabled = true
+            
+            binding.rentButton.apply {
+                isEnabled = true
+                text = "RENT NOW - €${String.format("%.2f", totalPrice)}"
+                setBackgroundColor(ContextCompat.getColor(context, R.color.primary))
+            }
+        } else {
+            binding.selectedDatesText.text = "Please select a valid date range"
+            binding.selectedDatesText.setTextColor(ContextCompat.getColor(this, R.color.text_hint))
+            binding.rentButton.apply {
+                isEnabled = false
+                text = "RENT"
+                setBackgroundColor(ContextCompat.getColor(context, R.color.text_hint))
+            }
         }
     }
 
