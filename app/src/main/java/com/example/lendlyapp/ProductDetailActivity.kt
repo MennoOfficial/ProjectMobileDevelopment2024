@@ -29,8 +29,8 @@ import android.widget.CalendarView
 class ProductDetailActivity : AppCompatActivity() {
     private lateinit var binding: ActivityProductDetailBinding
     private lateinit var product: Product
-    private var selectedStartDate: Calendar? = null
-    private var selectedEndDate: Calendar? = null
+    private var selectedStartDate: Calendar = Calendar.getInstance()
+    private var selectedEndDate: Calendar = Calendar.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,7 +50,7 @@ class ProductDetailActivity : AppCompatActivity() {
         }
 
         loadProduct(productId)
-        setupCalendar()
+        setupDatePickers()
         binding.rentButton.isEnabled = false
     }
 
@@ -106,45 +106,50 @@ class ProductDetailActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupCalendar() {
-        val calendar = Calendar.getInstance()
+    private fun setupDatePickers() {
+        val today = Calendar.getInstance()
         
-        binding.calendarView.minDate = calendar.timeInMillis
-        calendar.add(Calendar.YEAR, 1)
-        binding.calendarView.maxDate = calendar.timeInMillis
+        // Set minimum date to today for both pickers
+        binding.startDatePicker.minDate = today.timeInMillis
+        binding.endDatePicker.minDate = today.timeInMillis
 
-        binding.calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
-            val selectedCalendar = Calendar.getInstance()
-            selectedCalendar.set(year, month, dayOfMonth)
+        // Set maximum date to 1 year from now
+        val maxDate = Calendar.getInstance()
+        maxDate.add(Calendar.YEAR, 1)
+        binding.startDatePicker.maxDate = maxDate.timeInMillis
+        binding.endDatePicker.maxDate = maxDate.timeInMillis
+
+        // Setup start date picker listener
+        binding.startDatePicker.init(
+            today.get(Calendar.YEAR),
+            today.get(Calendar.MONTH),
+            today.get(Calendar.DAY_OF_MONTH)
+        ) { _, year, month, day ->
+            selectedStartDate.set(year, month, day)
             
-            if (selectedStartDate == null) {
-                selectedStartDate = selectedCalendar
-                selectedEndDate = null
-            } else if (selectedEndDate == null && selectedCalendar.after(selectedStartDate)) {
-                selectedEndDate = selectedCalendar
-                updateSelectedDatesText()
-                calculatePrice()
-            } else {
-                selectedStartDate = selectedCalendar
-                selectedEndDate = null
-            }
+            // Update end date picker's minimum date
+            binding.endDatePicker.minDate = selectedStartDate.timeInMillis
+            
+            updateSelectedDatesAndPrice()
+        }
+
+        // Setup end date picker listener
+        binding.endDatePicker.init(
+            today.get(Calendar.YEAR),
+            today.get(Calendar.MONTH),
+            today.get(Calendar.DAY_OF_MONTH)
+        ) { _, year, month, day ->
+            selectedEndDate.set(year, month, day)
+            updateSelectedDatesAndPrice()
         }
     }
 
-    private fun updateSelectedDatesText() {
-        val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
-        val start = selectedStartDate
-        val end = selectedEndDate
-        if (start != null && end != null) {
-            binding.selectedDatesText.text = "Selected: ${dateFormat.format(start.time)} - ${dateFormat.format(end.time)}"
-        }
-    }
-
-    private fun calculatePrice() {
-        val start = selectedStartDate
-        val end = selectedEndDate
-        if (start != null && end != null) {
-            val diffInMillis = end.timeInMillis - start.timeInMillis
+    private fun updateSelectedDatesAndPrice() {
+        if (selectedEndDate.after(selectedStartDate)) {
+            val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+            binding.selectedDatesText.text = "Selected: ${dateFormat.format(selectedStartDate.time)} - ${dateFormat.format(selectedEndDate.time)}"
+            
+            val diffInMillis = selectedEndDate.timeInMillis - selectedStartDate.timeInMillis
             val days = (diffInMillis / (1000 * 60 * 60 * 24)).toInt() + 1
             val totalPrice = product.price + (days - 1) * (product.price - 0.50)
             binding.rentButton.text = "RENT - €${String.format("%.2f", totalPrice)}"

@@ -86,24 +86,43 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Select Rental Dates"
-                android:textSize="18sp"
+                android:text="Start Date"
+                android:textSize="16sp"
                 android:textStyle="bold"
                 android:layout_marginTop="24dp"
                 android:layout_marginBottom="8dp"/>
 
-            <CalendarView
-                android:id="@+id/calendarView"
+            <DatePicker
+                android:id="@+id/startDatePicker"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:calendarViewShown="false"
+                android:datePickerMode="spinner"
+                android:layout_marginBottom="16dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="End Date"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <DatePicker
+                android:id="@+id/endDatePicker"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:calendarViewShown="false"
+                android:datePickerMode="spinner"
                 android:layout_marginBottom="16dp"/>
 
             <TextView
                 android:id="@+id/selectedDatesText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textStyle="italic"
-                android:layout_marginBottom="24dp"/>
+                android:textSize="16sp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/rentButton"
