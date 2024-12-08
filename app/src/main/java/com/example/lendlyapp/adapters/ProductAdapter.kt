@@ -1,6 +1,7 @@
 package com.example.lendlyapp.adapters
 
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +11,7 @@ import com.bumptech.glide.Glide
 import com.example.lendlyapp.R
 import com.example.lendlyapp.databinding.ItemProductBinding
 import com.example.lendlyapp.models.Product
+import com.example.lendlyapp.models.ProductStatus
 import com.example.lendlyapp.ProductDetailActivity
 
 class ProductAdapter(
@@ -31,20 +33,31 @@ class ProductAdapter(
                     .placeholder(R.drawable.placeholder_image)
                     .into(productImage)
 
-                try {
-                    val status = ProductStatus.valueOf(product.status)
-                    binding.statusPill.apply {
-                        text = status.displayName
-                        setBackgroundResource(R.drawable.bg_status_pill)
-                        setTextColor(ContextCompat.getColor(itemView.context, R.color.white))
+                tagChip.apply {
+                    text = product.tag.ifEmpty { 
+                        when (product.status.uppercase()) {
+                            "AVAILABLE" -> ProductStatus.AVAILABLE.displayName
+                            "RENTED" -> ProductStatus.RENTED.displayName
+                            "UNAVAILABLE" -> ProductStatus.UNAVAILABLE.displayName
+                            else -> ProductStatus.AVAILABLE.displayName
+                        }
                     }
-                } catch (e: IllegalArgumentException) {
-                    val defaultStatus = ProductStatus.AVAILABLE
-                    binding.statusPill.apply {
-                        text = defaultStatus.displayName
-                        setBackgroundResource(R.drawable.bg_status_pill)
-                        setTextColor(ContextCompat.getColor(itemView.context, R.color.white))
-                    }
+                    visibility = if (text.isNotEmpty()) View.VISIBLE else View.GONE
+                    setBackgroundResource(R.drawable.bg_status_pill)
+                    setTextColor(ContextCompat.getColor(itemView.context, R.color.white))
+                    backgroundTintList = ColorStateList.valueOf(
+                        ContextCompat.getColor(itemView.context, 
+                            if (product.tag.isNotEmpty()) {
+                                R.color.primary
+                            } else {
+                                when (product.status.uppercase()) {
+                                    "AVAILABLE" -> R.color.status_available
+                                    "RENTED" -> R.color.status_rented
+                                    else -> R.color.status_unavailable
+                                }
+                            }
+                        )
+                    )
                 }
 
                 viewDetailsButton.setOnClickListener { 

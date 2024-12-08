@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.example.lendlyapp.models.Product
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
+import com.example.lendlyapp.models.ProductStatus
 
 class HomeViewModel : ViewModel() {
     private val _products = MutableLiveData<List<Product>>()
@@ -24,18 +25,7 @@ class HomeViewModel : ViewModel() {
     private val _userLocation = MutableLiveData<GeoPoint>()
     val userLocation: LiveData<GeoPoint> = _userLocation
 
-    val tags = listOf(
-        "Electronics",
-        "Garden Tools",
-        "Sports Equipment",
-        "Home Appliances",
-        "Books",
-        "Music Instruments",
-        "Camping Gear",
-        "Party Supplies",
-        "Tools",
-        "Games"
-    )
+    val tags = ProductStatus.getAllTags()
 
     fun loadProducts() {
         FirebaseFirestore.getInstance()

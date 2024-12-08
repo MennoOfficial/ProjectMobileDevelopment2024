@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.example.lendlyapp.models.RentalPeriod
 import android.content.res.ColorStateList
+import com.example.lendlyapp.models.ProductStatus
 
 class ProductDetailActivity : AppCompatActivity() {
     private lateinit var binding: ActivityProductDetailBinding
@@ -90,15 +91,11 @@ class ProductDetailActivity : AppCompatActivity() {
             }
             
             tagChip.apply {
-                text = when (product.status) {
-                    "available" -> "Available"
-                    "rented" -> "Currently Rented"
-                    else -> "Unavailable"
-                }
+                text = ProductStatus.valueOf(product.status.uppercase()).displayName
                 chipBackgroundColor = ColorStateList.valueOf(
-                    ContextCompat.getColor(context, when (product.status) {
-                        "available" -> R.color.status_available
-                        "rented" -> R.color.status_rented
+                    ContextCompat.getColor(context, when (product.status.uppercase()) {
+                        ProductStatus.AVAILABLE.name -> R.color.status_available
+                        ProductStatus.RENTED.name -> R.color.status_rented
                         else -> R.color.status_unavailable
                     })
                 )

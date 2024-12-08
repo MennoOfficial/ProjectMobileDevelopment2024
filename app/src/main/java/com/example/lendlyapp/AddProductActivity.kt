@@ -26,6 +26,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import android.Manifest
 import android.util.Log
+import com.example.lendlyapp.models.ProductStatus
 
 class AddProductActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAddProductBinding
@@ -216,8 +217,8 @@ class AddProductActivity : AppCompatActivity() {
     }
 
     private fun setupTagSpinner() {
-        val tags = listOf("Electronics", "Garden Tools", "Sports Equipment", "Home Appliances", "Books", "Music Instruments", "Camping Gear", "Party Supplies", "Tools", "Games")
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, tags)
+        val tags = ProductStatus.getAllTags()
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, tags.toList())
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.tagSpinner.adapter = adapter
     }
