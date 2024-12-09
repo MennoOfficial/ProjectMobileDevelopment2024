@@ -2,6 +2,7 @@ package com.example.lendlyapp.ui.home
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -13,6 +14,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.lendlyapp.ProductDetailActivity
 import com.example.lendlyapp.R
 import com.example.lendlyapp.adapters.ProductAdapter
 import com.example.lendlyapp.databinding.FragmentHomeBinding
@@ -114,19 +116,11 @@ class HomeFragment : Fragment() {
     private fun setupRecyclerView() {
         adapter = ProductAdapter(
             emptyList(),
-            onLocationClick = { product ->
-                product.location?.let { location ->
-                    map.controller.animateTo(GeoPoint(location.latitude, location.longitude))
-                    map.controller.setZoom(15.0)
-                    
-                    map.overlays.filterIsInstance<CustomMarker>()
-                        .firstOrNull { it.product == product }
-                        ?.showInfoWindow()
-                }
-            },
             onDetailsClick = { product ->
-                // TODO: Implement navigation to product details
-                Toast.makeText(context, "View details for ${product.name}", Toast.LENGTH_SHORT).show()
+                val intent = Intent(requireContext(), ProductDetailActivity::class.java).apply {
+                    putExtra("product_id", product.id)
+                }
+                startActivity(intent)
             }
         )
         

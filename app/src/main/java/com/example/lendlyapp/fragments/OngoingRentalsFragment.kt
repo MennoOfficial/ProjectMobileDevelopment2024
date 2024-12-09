@@ -33,7 +33,6 @@ class OngoingRentalsFragment : Fragment() {
         
         adapter = ProductAdapter(
             products = emptyList(),
-            onLocationClick = { /* Not needed for ongoing rentals */ },
             onDetailsClick = { product ->
                 val intent = Intent(context, ProductDetailActivity::class.java).apply {
                     putExtra("product_id", product.id)
