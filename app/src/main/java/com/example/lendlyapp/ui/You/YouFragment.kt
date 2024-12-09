@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import android.widget.Toast
 import com.example.lendlyapp.adapters.ProductAdapter
 import com.example.lendlyapp.EditProfileActivity
+import com.example.lendlyapp.EditProductActivity
 
 class YouFragment : Fragment() {
 
@@ -52,8 +53,10 @@ class YouFragment : Fragment() {
         val adapter = ProductAdapter(
             products = emptyList(),
             onDetailsClick = { product ->
-                // Handle edit functionality
-                Toast.makeText(context, "Edit ${product.name}", Toast.LENGTH_SHORT).show()
+                val intent = Intent(requireContext(), EditProductActivity::class.java).apply {
+                    putExtra("product_id", product.id)
+                }
+                startActivity(intent)
             }
         )
         
