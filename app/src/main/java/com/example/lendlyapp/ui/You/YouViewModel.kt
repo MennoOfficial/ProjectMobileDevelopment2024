@@ -49,4 +49,17 @@ class YouViewModel : ViewModel() {
                 }
             }
     }
+
+    fun deleteProduct(productId: String) {
+        firestore.collection("products")
+            .document(productId)
+            .delete()
+            .addOnSuccessListener {
+                // Product will be automatically removed from the LiveData
+                // due to the snapshot listener in loadUserData()
+            }
+            .addOnFailureListener { e ->
+                // Handle error if needed
+            }
+    }
 } 

@@ -1,5 +1,6 @@
 package com.example.lendlyapp.ui.you
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,9 +14,10 @@ import com.example.lendlyapp.LoginActivity
 import com.google.firebase.auth.FirebaseAuth
 import androidx.recyclerview.widget.LinearLayoutManager
 import android.widget.Toast
+import com.example.lendlyapp.EditProductActivity
 import com.example.lendlyapp.adapters.ProductAdapter
 import com.example.lendlyapp.EditProfileActivity
-import com.example.lendlyapp.EditProductActivity
+import com.example.lendlyapp.models.Product
 
 class YouFragment : Fragment() {
 
@@ -57,13 +59,15 @@ class YouFragment : Fragment() {
                     putExtra("product_id", product.id)
                 }
                 startActivity(intent)
+            },
+            onDeleteClick = { product ->
+                showDeleteConfirmationDialog(product)
             }
         )
         
-        binding.productsRecyclerView.layoutManager = 
-            LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         binding.productsRecyclerView.adapter = adapter
-
+        binding.productsRecyclerView.layoutManager = LinearLayoutManager(context)
+        
         viewModel.products.observe(viewLifecycleOwner) { products ->
             adapter.updateProducts(products)
         }
@@ -85,6 +89,21 @@ class YouFragment : Fragment() {
         binding.editProfileButton.setOnClickListener {
             startActivity(Intent(requireContext(), EditProfileActivity::class.java))
         }
+    }
+
+    private fun showDeleteConfirmationDialog(product: Product) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Delete Product")
+            .setMessage("Are you sure you want to delete ${product.name}?")
+            .setPositiveButton("Delete") { _, _ ->
+                deleteProduct(product)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun deleteProduct(product: Product) {
+        viewModel.deleteProduct(product.id)
     }
 
     override fun onDestroyView() {

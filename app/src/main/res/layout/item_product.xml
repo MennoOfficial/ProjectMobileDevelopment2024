@@ -47,28 +47,22 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"/>
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/ownerName"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="16dp">
+                android:textSize="12sp"
+                android:textColor="@color/text_secondary"
+                android:layout_marginTop="4dp"/>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/viewLocationButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="8dp"
-                    android:text="View Location"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/viewDetailsButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="View Details"/>
-            </LinearLayout>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/deleteButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Delete"
+                android:visibility="gone"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
         </LinearLayout>
     </LinearLayout>
 
