@@ -15,7 +15,7 @@ import com.example.lendlyapp.models.ProductStatus
 import com.example.lendlyapp.ProductDetailActivity
 
 class ProductAdapter(
-    private var products: List<Product>,
+    var products: List<Product>,
     private val onLocationClick: ((Product) -> Unit)? = null,
     private val onDetailsClick: (Product) -> Unit
 ) : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {

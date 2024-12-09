@@ -26,14 +26,14 @@
         <item name="cardElevation">2dp</item>
     </style>
 
-    <style name="DatePickerStyle" parent="Theme.MaterialComponents">
+    <style name="DatePickerStyle" parent="Widget.MaterialComponents.MaterialCalendar">
         <item name="colorPrimary">@color/dark_primary</item>
         <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSurface">@color/dark_surface</item>
+        <item name="colorOnSurface">@color/dark_text_primary</item>
         <item name="android:textColorPrimary">@color/dark_text_primary</item>
         <item name="android:textColorSecondary">@color/dark_text_secondary</item>
+        <item name="android:colorAccent">@color/dark_primary</item>
         <item name="android:background">@color/dark_surface</item>
-        <item name="android:textSize">18sp</item>
-        <item name="android:padding">8dp</item>
-        <item name="android:layout_margin">4dp</item>
     </style>
 </resources>

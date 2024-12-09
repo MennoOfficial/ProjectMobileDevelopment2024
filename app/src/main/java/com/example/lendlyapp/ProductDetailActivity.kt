@@ -18,6 +18,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException
 import com.example.lendlyapp.models.RentalPeriod
 import android.content.res.ColorStateList
 import com.example.lendlyapp.models.ProductStatus
+import com.google.firebase.firestore.FieldValue
 
 class ProductDetailActivity : AppCompatActivity() {
     private lateinit var binding: ActivityProductDetailBinding
@@ -135,7 +136,10 @@ class ProductDetailActivity : AppCompatActivity() {
                 startDate = selectedStartDate.timeInMillis,
                 endDate = selectedEndDate.timeInMillis,
                 renterId = currentUser.uid,
-                totalPrice = totalPrice
+                totalPrice = totalPrice,
+                productId = product.id,
+                productName = product.name,
+                productImage = product.imageUrl
             )
 
             // Update product in Firestore
@@ -144,12 +148,7 @@ class ProductDetailActivity : AppCompatActivity() {
                 val productRef = db.collection("products").document(product.id)
                 val productSnapshot = transaction.get(productRef)
                 
-                // Get current rental periods
                 val currentProduct = productSnapshot.toObject(Product::class.java)
-                val newRentalPeriods = currentProduct?.rentalPeriods?.toMutableList() ?: mutableListOf()
-                newRentalPeriods.add(rentalPeriod)
-
-                // Check if the product is currently available
                 if (currentProduct?.status != "available") {
                     throw FirebaseFirestoreException(
                         "Product is no longer available",
@@ -157,11 +156,19 @@ class ProductDetailActivity : AppCompatActivity() {
                     )
                 }
 
-                // Update the product
-                transaction.update(productRef, mapOf(
+                // Create updates map
+                val updates = hashMapOf(
                     "status" to "rented",
-                    "rentalPeriods" to newRentalPeriods
-                ))
+                    "renters" to FieldValue.arrayUnion(currentUser.uid),
+                    "rentalPeriods" to FieldValue.arrayUnion(mapOf(
+                        "startDate" to selectedStartDate.timeInMillis,
+                        "endDate" to selectedEndDate.timeInMillis,
+                        "renterId" to currentUser.uid,
+                        "totalPrice" to totalPrice
+                    ))
+                )
+
+                transaction.update(productRef, updates)
             }.addOnSuccessListener {
                 Toast.makeText(this, "Product rented successfully!", Toast.LENGTH_SHORT).show()
                 finish()

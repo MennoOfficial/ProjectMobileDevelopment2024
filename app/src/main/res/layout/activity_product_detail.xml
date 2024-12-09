@@ -114,17 +114,16 @@
                         android:text="Start Date"
                         android:textSize="16sp"
                         android:textStyle="bold"
-                        android:textColor="@color/primary"
+                        android:textColor="?attr/colorPrimary"
                         android:layout_marginBottom="8dp"/>
 
                     <DatePicker
                         android:id="@+id/startDatePicker"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:calendarViewShown="false"
-                        android:datePickerMode="spinner"
+                        android:calendarViewShown="true"
+                        android:datePickerMode="calendar"
                         android:theme="@style/DatePickerStyle"
-                        android:background="@drawable/date_picker_background"
                         android:layout_marginBottom="16dp"/>
 
                     <TextView
@@ -133,17 +132,16 @@
                         android:text="End Date"
                         android:textSize="16sp"
                         android:textStyle="bold"
-                        android:textColor="@color/primary"
+                        android:textColor="?attr/colorPrimary"
                         android:layout_marginBottom="8dp"/>
 
                     <DatePicker
                         android:id="@+id/endDatePicker"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:calendarViewShown="false"
-                        android:datePickerMode="spinner"
-                        android:theme="@style/DatePickerStyle"
-                        android:background="@drawable/date_picker_background"/>
+                        android:calendarViewShown="true"
+                        android:datePickerMode="calendar"
+                        android:theme="@style/DatePickerStyle"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
