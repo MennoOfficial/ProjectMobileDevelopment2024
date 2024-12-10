@@ -37,4 +37,6 @@
     <color name="status_available">#4CAF50</color>
     <color name="status_rented">#FFC107</color>
     <color name="status_unavailable">#F44336</color>
+    <color name="tag_background">#E0E0E0</color>
+    <color name="tag_text">#424242</color>
 </resources>

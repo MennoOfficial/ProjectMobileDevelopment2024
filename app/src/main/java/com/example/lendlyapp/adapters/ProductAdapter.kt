@@ -1,6 +1,7 @@
 package com.example.lendlyapp.adapters
 
 import android.content.res.ColorStateList
+import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -66,27 +67,33 @@ class ProductAdapter(
                     .placeholder(R.drawable.placeholder_image)
                     .into(productImage)
 
-                tagChip.apply {
-                    text = product.tag.ifEmpty { 
-                        when (product.status.uppercase()) {
-                            "AVAILABLE" -> ProductStatus.AVAILABLE.displayName
-                            "RENTED" -> ProductStatus.RENTED.displayName
-                            else -> ProductStatus.UNAVAILABLE.displayName
-                        }
+                statusPill.apply {
+                    text = when (product.status.uppercase()) {
+                        "AVAILABLE" -> ProductStatus.AVAILABLE.displayName
+                        "RENTED" -> ProductStatus.RENTED.displayName
+                        else -> ProductStatus.UNAVAILABLE.displayName
                     }
-                    chipBackgroundColor = ColorStateList.valueOf(
-                        ContextCompat.getColor(itemView.context, 
-                            if (product.tag.isNotEmpty()) {
-                                R.color.primary
-                            } else {
-                                when (product.status.uppercase()) {
-                                    "AVAILABLE" -> R.color.status_available
-                                    "RENTED" -> R.color.status_rented
-                                    else -> R.color.status_unavailable
-                                }
-                            }
-                        )
+                    background.setTint(
+                        ContextCompat.getColor(itemView.context, when (product.status.uppercase()) {
+                            "AVAILABLE" -> R.color.status_available
+                            "RENTED" -> R.color.status_rented
+                            else -> R.color.status_unavailable
+                        })
                     )
+                }
+
+                // Add tag chip if it exists
+                if (product.tag.isNotEmpty()) {
+                    tagChip.apply {
+                        visibility = View.VISIBLE
+                        text = product.tag
+                        chipBackgroundColor = ColorStateList.valueOf(
+                            ContextCompat.getColor(itemView.context, R.color.tag_background)
+                        )
+                        setTextColor(ContextCompat.getColor(itemView.context, R.color.tag_text))
+                    }
+                } else {
+                    tagChip.visibility = View.GONE
                 }
 
                 // Make the entire card clickable
