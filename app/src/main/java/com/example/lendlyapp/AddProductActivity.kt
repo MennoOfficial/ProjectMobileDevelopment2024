@@ -200,7 +200,8 @@ class AddProductActivity : AppCompatActivity() {
             "location" to geoPoint,
             "imageUrl" to imageUrl,
             "tag" to binding.tagSpinner.selectedItem.toString(),
-            "status" to ProductStatus.AVAILABLE.name
+            "status" to ProductStatus.AVAILABLE.name,
+            "rentalPeriods" to listOf<Map<String, Any>>()
         )
 
         Log.d("AddProductActivity", "Adding product: $product")

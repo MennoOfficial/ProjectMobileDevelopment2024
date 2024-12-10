@@ -19,6 +19,7 @@ import com.example.lendlyapp.models.RentalPeriod
 import android.content.res.ColorStateList
 import com.example.lendlyapp.models.ProductStatus
 import com.google.firebase.firestore.FieldValue
+import android.util.Log
 
 class ProductDetailActivity : AppCompatActivity() {
     private lateinit var binding: ActivityProductDetailBinding
@@ -45,8 +46,8 @@ class ProductDetailActivity : AppCompatActivity() {
 
         loadProduct(productId)
         setupDatePickers()
-        binding.rentButton.isEnabled = false
         setupRentButton()
+        binding.rentButton.isEnabled = false
     }
 
     private fun loadProduct(productId: String) {
@@ -109,7 +110,7 @@ class ProductDetailActivity : AppCompatActivity() {
             datePostedText.text = "Posted on ${dateFormat.format(product.createdAt)}"
 
             // Disable rent button if product is not available
-            rentButton.isEnabled = product.status == "available"
+            rentButton.isEnabled = product.status.equals("available", ignoreCase = true)
         }
     }
 
@@ -149,7 +150,7 @@ class ProductDetailActivity : AppCompatActivity() {
                 val productSnapshot = transaction.get(productRef)
                 
                 val currentProduct = productSnapshot.toObject(Product::class.java)
-                if (currentProduct?.status != "available") {
+                if (currentProduct?.status?.equals("available", ignoreCase = true) != true) {
                     throw FirebaseFirestoreException(
                         "Product is no longer available",
                         FirebaseFirestoreException.Code.ABORTED
@@ -217,7 +218,7 @@ class ProductDetailActivity : AppCompatActivity() {
     }
 
     private fun updateSelectedDatesAndPrice() {
-        if (selectedEndDate.after(selectedStartDate)) {
+        if (selectedEndDate.timeInMillis >= selectedStartDate.timeInMillis) {
             val dateFormat = SimpleDateFormat("EEE, MMM dd, yyyy", Locale.getDefault())
             binding.selectedDatesText.text = "Selected Period:\n${dateFormat.format(selectedStartDate.time)} - ${dateFormat.format(selectedEndDate.time)}"
             binding.selectedDatesText.setTextColor(ContextCompat.getColor(this, R.color.text_primary))
@@ -227,7 +228,7 @@ class ProductDetailActivity : AppCompatActivity() {
             val totalPrice = product.price + (days - 1) * (product.price - 0.50)
             
             binding.rentButton.apply {
-                isEnabled = true
+                isEnabled = product.status.equals("available", ignoreCase = true)
                 text = "RENT NOW - €${String.format("%.2f", totalPrice)}"
                 setBackgroundColor(ContextCompat.getColor(context, R.color.primary))
             }
