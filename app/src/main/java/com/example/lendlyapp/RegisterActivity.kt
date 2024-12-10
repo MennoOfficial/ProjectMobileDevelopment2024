@@ -106,6 +106,9 @@ class RegisterActivity : AppCompatActivity() {
         email: String, 
         password: String
     ) {
+        // Show loading indicator or disable register button
+        binding.registerButton.isEnabled = false
+
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
@@ -124,12 +127,16 @@ class RegisterActivity : AppCompatActivity() {
                             "email" to email
                         )
 
-                        FirebaseFirestore.getInstance()
-                            .collection("users")
+                        // Create a reference to the Firestore database
+                        val db = FirebaseFirestore.getInstance()
+                        
+                        // Set the user document with a specific ID (user.uid)
+                        db.collection("users")
                             .document(user.uid)
                             .set(userData)
                             .addOnSuccessListener {
                                 Log.d("RegisterActivity", "User data saved successfully")
+                                // Navigate to MainActivity
                                 val intent = Intent(this, MainActivity::class.java)
                                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                                 startActivity(intent)
@@ -137,11 +144,25 @@ class RegisterActivity : AppCompatActivity() {
                             }
                             .addOnFailureListener { e ->
                                 Log.e("RegisterActivity", "Failed to save user data: ${e.message}")
+                                // Show error message to user
+                                Toast.makeText(
+                                    this,
+                                    "Failed to create user profile: ${e.message}",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                                // Delete the authentication user if Firestore creation fails
+                                user.delete()
+                                binding.registerButton.isEnabled = true
                             }
                     }
                 } else {
-                    Toast.makeText(this, "Registration failed: ${task.exception?.message}",
-                        Toast.LENGTH_SHORT).show()
+                    // Authentication failed
+                    Toast.makeText(
+                        this,
+                        "Registration failed: ${task.exception?.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    binding.registerButton.isEnabled = true
                 }
             }
     }
